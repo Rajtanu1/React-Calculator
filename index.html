@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Exo:wght@600&display=swap" rel="stylesheet"/>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <link href="reactCalculator.css" rel="stylesheet" />
+    <title>React-Calculator</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+      let audioObject = new Audio("./sound/button-click.mp3");
+      let addPressAnimationWithSoundOnClickedElement = function (htmlElement) {
+        htmlElement.classList.add("press-animation");
+        audioObject.play();
+        setTimeout(function () {
+          htmlElement.classList.remove("press-animation");
+        }, 500);
+      };
+
+      let Display = function (props) {
+        return (
+          <div id="display">
+            <div id="screen-top">{props.input}</div>
+            <div id="screen-bottom">{props.output}</div>
+          </div>
+        );
+      };
+
+      let Operators = function (props) {
+        return (
+          <div id="operators">
+            <div id="add" onClick={props.operation}>
+              +
+            </div>
+            <div id="subtract" onClick={props.operation}>
+              -
+            </div>
+            <div id="equals" onClick={props.answer}>
+              =
+            </div>
+          </div>
+        );
+      };
+
+      let ClearAndOperators = function (props) {
+        return (
+          <div id="clear-and-operators">
+            <div id="clear" onClick={props.clear}>
+              Clear
+            </div>
+            <div id="divide" onClick={props.operation}>
+              /
+            </div>
+            <div id="multiply" onClick={props.operation}>
+              x
+            </div>
+          </div>
+        );
+      };
+
+      let NumKeys = function (props) {
+        return (
+          <div id="numbers" onClick={props.changeInput}>
+            <div id="first-row">
+              <div className="seven">7</div>
+              <div className="eight">8</div>
+              <div className="nine">9</div>
+            </div>
+            <div id="second-row">
+              <div className="four">4</div>
+              <div className="five">5</div>
+              <div className="six">6</div>
+            </div>
+            <div id="third-row">
+              <div className="one">1</div>
+              <div className="two">2</div>
+              <div className="three">3</div>
+            </div>
+            <div id="fourth-row">
+              <div className="zero">0</div>
+              <div className="decimal">.</div>
+            </div>
+          </div>
+        );
+      };
+
+      class CalculatorApp extends React.Component {
+        constructor(props) {
+          super(props);
+          this.state = {
+            input: "",
+            output: "0",
+            answer: null,
+          };
+          this.inputChange = this.inputChange.bind(this);
+          this.clearAll = this.clearAll.bind(this);
+          this.answer = this.answer.bind(this);
+          this.arithmeticOperator = this.arithmeticOperator.bind(this);
+        }
+
+        inputChange(event) {
+          let operatorCheck = /[/+x-]/;
+          let input = this.state.input;
+          let output = this.state.output;
+          let answer = this.state.answer;
+          let targetElement = event.target;
+
+          if (targetElement.className) {
+            addPressAnimationWithSoundOnClickedElement(targetElement);
+          }
+
+          if (this.state.answer) {
+            this.setState({
+              input: "",
+              output: "",
+              answer: "",
+            });
+          }
+          if (operatorCheck.test(output)) {
+            this.setState({
+              output: "",
+            });
+          }
+          if (
+            this.state.output === "0" ||
+            this.state.output === "Provide an input"
+          ) {
+            if (!event.target.firstElementChild) {
+              this.setState({
+                output: event.target.textContent,
+                input: event.target.textContent,
+              });
+            }
+          } else {
+            if (event.target.firstElementChild === null) {
+              if (
+                event.target.textContent === "." &&
+                /[.]/.test(input[input.length - 1]) === true
+              ) {
+                this.setState((state) => ({
+                  input: state.input,
+                }));
+              } else if (/^\d{14}$/.test(input)) {
+                this.setState({
+                  output: "Limit Exceeded",
+                });
+              } else {
+                this.setState((state) => ({
+                  input: (state.input += event.target.textContent),
+                  output: (state.output += event.target.textContent),
+                }));
+              }
+            }
+          }
+        }
+
+        clearAll(event) {
+          this.setState({
+            input: "",
+            output: "0",
+          });
+        }
+
+        answer(event) {
+          let expression = this.state.input;
+          let evaluate;
+          let targetElement = event.target;
+
+          addPressAnimationWithSoundOnClickedElement(targetElement);
+
+          if (!expression) {
+            this.setState((state) => ({
+              output: "Provide an input",
+            }));
+          } else {
+            expression.indexOf("x") !== -1
+              ? (evaluate = eval(expression.replaceAll("x", "*")))
+              : (evaluate = eval(expression));
+            if (/.\d{13,}/.test(evaluate)) {
+              evaluate = evaluate.toFixed(8);
+            }
+            console.log(evaluate);
+            this.setState((state) => ({
+              input: `${expression}=${evaluate}`,
+              output: evaluate,
+              answer: evaluate,
+            }));
+          }
+        }
+
+        arithmeticOperator(event) {
+          let input = this.state.input;
+          let operators = /[/x+]/;
+          let targetElement = event.target;
+
+          addPressAnimationWithSoundOnClickedElement(targetElement);
+
+          if (
+            operators.test(input[input.length - 1]) === true &&
+            operators.test(event.target.textContent) === true
+          ) {
+            this.setState((state) => ({
+              input: state.input.replace(
+                input[input.length - 1],
+                event.target.textContent
+              ),
+              output: event.target.textContent,
+            }));
+          } else if (/-$/.test(input) && event.target.textContent === "-") {
+            this.setState((state) => ({
+              input: `${input} ${event.target.textContent}`,
+              output: event.target.textContent,
+            }));
+          } else {
+            if (this.state.answer) {
+              let answer = this.state.answer;
+              this.setState({
+                input: `${answer}${event.target.textContent}`,
+                output: event.target.textContent,
+                answer: "",
+              });
+            } else {
+              this.setState((state) => ({
+                input: `${state.input}${event.target.textContent}`,
+                output: event.target.textContent,
+              }));
+            }
+          }
+        }
+
+        render() {
+          return (
+            <div id="calculator">
+              <Display input={this.state.input} output={this.state.output} />
+              <ClearAndOperators
+                clear={this.clearAll}
+                operation={this.arithmeticOperator}
+              />
+              <NumKeys changeInput={this.inputChange} />
+              <Operators
+                changeInput={this.inputChange}
+                operation={this.arithmeticOperator}
+                answer={this.answer}
+              />
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<CalculatorApp />, document.getElementById("root"));
+    </script>
+  </body>
+</html>
