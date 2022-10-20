@@ -10,7 +10,6 @@ body {
   display: grid;
   grid-template-columns: 80% 20%;
   font-family: "Righteous";
-  cursor: pointer;
   border-radius: 20px;
   box-shadow: 10px 10px 9px 3px black;
 }
@@ -20,7 +19,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 18px;
   height: 100px;
   text-align: right;
   font-family: "Exo";
@@ -33,13 +32,8 @@ body {
   overflow: hidden;
 }
 
-display > div {
-  padding: 16px 16px 1px 10px;
-}
-
 #screen-bottom {
   width: 100%;
-  align-items: flex-end;
   font-family: "Exo";
   font-size: 30px;
   background-color: black;
@@ -84,9 +78,7 @@ display > div {
   background-color: rgb(92, 0, 128);
 }
 
-#multiply,
-#add,
-#subtract {
+#multiply, #add, #subtract {
   background: linear-gradient(rgba(99, 63, 170, 0.179),rgba(220, 65, 220, 0.864));
   color: rgb(255, 159, 159);
   display: flex;
@@ -201,3 +193,10 @@ display > div {
     transform: scale(0.8);
   }
 }
+
+@media (min-width: 769px) {
+  #calculator {
+    cursor: pointer;
+  }
+}
+
