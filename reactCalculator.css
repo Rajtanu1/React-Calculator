@@ -6,7 +6,7 @@ body {
 #calculator {
   width: 300px;
   box-sizing: border-box;
-  margin: 5% auto 0px;
+  margin: 15vh auto 0px;
   display: grid;
   grid-template-columns: 80% 20%;
   font-family: "Righteous";
